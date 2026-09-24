@@ -26,6 +26,7 @@ export async function proxy(req: NextRequest) {
 
   const headers = new Headers(req.headers)
   headers.delete('content-length')
+  headers.delete('origin') // Evita falsos positivos de CORS en el backend
   headers.set('X-Tenant-Slug', slug)
 
   const hasBody = !['GET', 'HEAD'].includes(req.method)
