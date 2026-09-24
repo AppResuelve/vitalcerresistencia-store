@@ -14,6 +14,8 @@ export async function proxy(req: NextRequest) {
   const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '')
   const slug = resolveTenantSlug(req)
 
+  console.log('[store-proxy]', req.method, pathname, '→', apiUrl, 'tenant:', slug)
+
   if (!slug) {
     return new NextResponse('Tenant slug no configurado', { status: 400 })
   }
@@ -27,23 +29,40 @@ export async function proxy(req: NextRequest) {
   headers.set('X-Tenant-Slug', slug)
 
   const hasBody = !['GET', 'HEAD'].includes(req.method)
+  let body: ArrayBuffer | undefined = undefined
+  if (hasBody) {
+    try {
+      body = await req.arrayBuffer()
+      console.log('[store-proxy] body size:', body.byteLength)
+    } catch (err) {
+      console.error('[store-proxy] Error reading body:', (err as Error).message)
+    }
+  }
 
   try {
     const res = await fetch(`${apiUrl}${pathname}${search}`, {
       method: req.method,
       headers,
-      body: hasBody ? req.body : undefined,
+      body,
       // No enviamos cookies al API de misitioapp; la store es pública.
       credentials: 'omit',
     })
 
+    console.log('[store-proxy] response:', res.status, res.statusText)
+
+    // Limpiar headers de transferencia/compresión porque fetch ya decodificó el body.
+    const responseHeaders = new Headers(res.headers)
+    responseHeaders.delete('content-encoding')
+    responseHeaders.delete('content-length')
+    responseHeaders.delete('transfer-encoding')
+
     return new NextResponse(res.body, {
       status: res.status,
       statusText: res.statusText,
-      headers: res.headers,
+      headers: responseHeaders,
     })
   } catch (err) {
-    console.error('[proxy] Error proxying to misitioapp API:', err)
+    console.error('[store-proxy] Error forwarding request:', (err as Error).message, (err as Error).stack)
     return new NextResponse('Error conectando con el API de la tienda', { status: 502 })
   }
 }
