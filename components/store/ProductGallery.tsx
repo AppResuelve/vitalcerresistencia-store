@@ -1,40 +1,54 @@
-'use client'
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+"use client";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
+import { optimizeImageUrl } from "@/utils/imageUrl";
 
 export function ProductGallery({ images, productName, discountPercentage }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-square bg-[var(--color-surface)] rounded-lg flex items-center justify-center">
-        <span className="text-[var(--color-text-muted)]">Sin imagen</span>
-      </div>
-    )
-  }
+      <div className="relative aspect-square bg-[var(--color-surface)] rounded-lg flex flex-col items-center justify-center gap-2">
+        <ImageOff
+          className="w-16 h-16 text-[var(--color-text-muted)]"
+          strokeWidth={1.5}
+        />
+        <span className="text-[var(--color-text-muted)] text-sm">
+          Sin imagen
+        </span>
 
-  const goToPrevious = (e) => {
-    e.preventDefault()
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+        {discountPercentage && (
+          <div className="absolute top-3 right-3">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--color-primary)] text-white">
+              {discountPercentage}% OFF
+            </span>
+          </div>
+        )}
+      </div>
+    );
   }
+  const goToPrevious = (e) => {
+    e.preventDefault();
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
 
   const goToNext = (e) => {
-    e.preventDefault()
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-  }
+    e.preventDefault();
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div className="space-y-4">
       <div className="relative aspect-square rounded-lg overflow-hidden bg-[var(--color-surface)]">
         <img
-          src={images[currentIndex]}
+          src={optimizeImageUrl(images[currentIndex], 800)}
           alt={`${productName} - Imagen ${currentIndex + 1}`}
           className="w-full h-full object-cover"
         />
 
         {discountPercentage && (
           <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-[var(--color-secondary)] text-yellow-800">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--color-primary)] text-white">
               {discountPercentage}% OFF
             </span>
           </div>
@@ -64,17 +78,17 @@ export function ProductGallery({ images, productName, discountPercentage }) {
             <button
               key={index}
               onClick={(e) => {
-                e.preventDefault()
-                setCurrentIndex(index)
+                e.preventDefault();
+                setCurrentIndex(index);
               }}
               className={`shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
                 index === currentIndex
-                  ? 'border-[var(--color-primary)]'
-                  : 'border-transparent opacity-60 hover:opacity-100'
+                  ? "border-[var(--color-primary)]"
+                  : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
               <img
-                src={image}
+                src={optimizeImageUrl(image, 150)}
                 alt={`${productName} - Miniatura ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -83,5 +97,5 @@ export function ProductGallery({ images, productName, discountPercentage }) {
         </div>
       )}
     </div>
-  )
+  );
 }
