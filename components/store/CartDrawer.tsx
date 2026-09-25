@@ -7,7 +7,8 @@ import { formatPrice } from '@/utils/formatPrice'
 import { generateWhatsAppOrderMessage } from '@/utils/whatsappMessage'
 
 export function CartDrawer({ open, onClose, onRequestOrder }) {
-  const { items, totalItems, totalPrice, removeItem, clearCart } = useCart()
+  const { items, totalItems, totalPrice, removeItem, clearCart, cartDiscount } = useCart()
+  const finalTotal = cartDiscount?.finalTotal ?? totalPrice
 
   return (
     <>
@@ -143,17 +144,33 @@ export function CartDrawer({ open, onClose, onRequestOrder }) {
             className="px-5 py-4 shrink-0"
             style={{ borderTop: '1px solid var(--color-border)' }}
           >
+            {cartDiscount?.enabled && cartDiscount.eligible && (
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm" style={{ color: 'var(--color-secondary)' }}>
+                  Descuento por volumen ({cartDiscount.percentage}%)
+                </span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--color-secondary)' }}>
+                  -${cartDiscount.discountAmount.toLocaleString('es-AR')}
+                </span>
+              </div>
+            )}
+            {cartDiscount?.enabled && !cartDiscount.eligible && (
+              <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                Te faltan ${cartDiscount.progress.remaining.toLocaleString('es-AR')} para {cartDiscount.percentage}% OFF
+              </p>
+            )}
+
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Total
               </span>
               <span className="text-xl font-bold" style={{ color: 'var(--color-primary)' }}>
-                ${totalPrice.toLocaleString('es-AR')}
+                ${finalTotal.toLocaleString('es-AR')}
               </span>
             </div>
 
             <button
-              onClick={() => onRequestOrder(generateWhatsAppOrderMessage(items, totalPrice))}
+              onClick={() => onRequestOrder(generateWhatsAppOrderMessage(items, finalTotal))}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-full font-medium text-sm text-white transition-all duration-200 hover:-translate-y-0.5 mb-2"
               style={{
                 backgroundColor: 'var(--color-primary)',

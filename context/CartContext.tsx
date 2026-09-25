@@ -88,7 +88,7 @@ function cartReducer(state, action) {
 }
 
 export function CartProvider({ children }) {
-  const { productsMap, loading } = useStore()
+  const { productsMap, loading, cartTotals } = useStore()
   const [hydrated, setHydrated] = useState(false)
 
   const [state, dispatch] = useReducer(cartReducer, { items: [] })
@@ -167,6 +167,51 @@ export function CartProvider({ children }) {
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.subtotal, 0)
 
+  const cartDiscount = useMemo(() => {
+    const active = (cartTotals || []).find((d) => Number(d.minAmount) > 0 && Number(d.percentage) > 0)
+    if (!active) {
+      return { enabled: false, minAmount: 0, percentage: 0, countDiscounted: false, minBase: 0, discountBase: 0, eligible: false, discountAmount: 0, finalTotal: totalPrice, progress: { current: 0, min: 0, remaining: 0, pct: 0 } }
+    }
+
+    const minAmount = Number(active.minAmount) || 0
+    const percentage = Number(active.percentage) || 0
+    const countDiscounted = !!active.countDiscounted
+
+    let minBase = 0
+    let discountBase = 0
+
+    for (const item of cartItems) {
+      const hasDiscount = item.type !== 'service' && (item.hasActiveDiscount || (Number(item.discountPercentage) > 0))
+      if (hasDiscount && !countDiscounted) {
+        continue
+      }
+      minBase += item.subtotal
+      discountBase += item.subtotal
+    }
+
+    const eligible = minBase >= minAmount
+    const discountAmount = eligible ? Math.round((discountBase * (percentage / 100)) * 100) / 100 : 0
+    const finalTotal = totalPrice - discountAmount
+
+    return {
+      enabled: true,
+      minAmount,
+      percentage,
+      countDiscounted,
+      minBase,
+      discountBase,
+      eligible,
+      discountAmount,
+      finalTotal,
+      progress: {
+        current: minBase,
+        min: minAmount,
+        remaining: Math.max(0, minAmount - minBase),
+        pct: minAmount > 0 ? Math.min((minBase / minAmount) * 100, 100) : 0,
+      },
+    }
+  }, [cartItems, totalPrice, cartTotals])
+
   const addItem = (productId, quantity = 1, skuId = null) => {
     dispatch({ type: 'ADD_ITEM', payload: { productId, quantity, skuId } })
   }
@@ -197,6 +242,7 @@ export function CartProvider({ children }) {
     items: hydrated ? cartItems : [],
     totalItems: hydrated ? totalItems : 0,
     totalPrice: hydrated ? totalPrice : 0,
+    cartDiscount: hydrated ? cartDiscount : null,
     addItem,
     addServiceItem,
     removeItem,

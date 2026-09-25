@@ -113,7 +113,8 @@ function CartEmpty({ emptyTitle, emptyMessage, browseProducts }) {
    CART PAGE
 ══════════════════════════════════════════════════════════════════════ */
 export default function Cart() {
-  const { items, totalItems, totalPrice } = useCart();
+  const { items, totalItems, totalPrice, cartDiscount } = useCart();
+  const finalTotal = cartDiscount?.finalTotal ?? totalPrice;
   const { requestOrder } = useOrder();
   const {
     title,
@@ -137,7 +138,7 @@ export default function Cart() {
     );
 
   const handleRequest = () => {
-    const message = generateWhatsAppOrderMessage(items, totalPrice);
+    const message = generateWhatsAppOrderMessage(items, finalTotal);
     requestOrder(message);
     ordersService.create({
       items: items.map((i) => ({
@@ -146,7 +147,7 @@ export default function Cart() {
         price: i.unitPrice,
         qty: i.quantity,
       })),
-      total: totalPrice,
+      total: finalTotal,
     }).catch(() => {});
   };
 
@@ -254,6 +255,22 @@ export default function Cart() {
                     </span>
                   </div>
 
+                  {cartDiscount?.enabled && cartDiscount.eligible && (
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm text-[var(--color-secondary)]">
+                        Descuento por volumen ({cartDiscount.percentage}%)
+                      </span>
+                      <span className="text-sm font-semibold text-[var(--color-secondary)]">
+                        -${cartDiscount.discountAmount.toLocaleString("es-AR")}
+                      </span>
+                    </div>
+                  )}
+                  {cartDiscount?.enabled && !cartDiscount.eligible && (
+                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
+                      Te faltan ${cartDiscount.progress.remaining.toLocaleString("es-AR")} para {cartDiscount.percentage}% OFF
+                    </p>
+                  )}
+
                   <ThinLine className="my-4" />
 
                   <div className="flex justify-between items-center mb-8">
@@ -264,7 +281,7 @@ export default function Cart() {
                       className="text-2xl font-bold"
                       style={{ color: "var(--color-primary)" }}
                     >
-                      ${totalPrice.toLocaleString("es-AR")}
+                      ${finalTotal.toLocaleString("es-AR")}
                     </span>
                   </div>
 

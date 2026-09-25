@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
-import { settingsService, categoriesService, productsService } from '@/services/storeService'
+import { settingsService, categoriesService, productsService, discountsService } from '@/services/storeService'
 
 const StoreContext = createContext<any>(null)
 
@@ -9,6 +9,7 @@ export function StoreProvider({ children }) {
   const [store, setStore] = useState(null)
   const [categories, setCategories] = useState([])
   const [productsMap, setProductsMap] = useState({})
+  const [cartTotals, setCartTotals] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,6 +17,9 @@ export function StoreProvider({ children }) {
       try {
         const settings = await settingsService.get()
         setStore(settings)
+
+        const discounts = await discountsService.get().catch(() => ({ cartTotals: [] }))
+        setCartTotals(discounts.cartTotals || [])
 
         const status = settings.store_status || 'active'
         if (status !== 'active') {
@@ -47,7 +51,7 @@ export function StoreProvider({ children }) {
   }, [])
 
   return (
-    <StoreContext.Provider value={{ store, categories, productsMap, loading }}>
+    <StoreContext.Provider value={{ store, categories, productsMap, cartTotals, loading }}>
       {children}
     </StoreContext.Provider>
   )

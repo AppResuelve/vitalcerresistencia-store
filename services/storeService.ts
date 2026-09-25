@@ -21,6 +21,12 @@ export const settingsService = {
   },
 }
 
+export const discountsService = {
+  get() {
+    return api.get("/api/store/discounts").then((r) => r.data)
+  },
+}
+
 export const ordersService = {
   create(data: unknown) {
     return api.post("/api/store/orders", data).then((r) => r.data)
