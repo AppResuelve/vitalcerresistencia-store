@@ -5,6 +5,7 @@ import { X, ShoppingCart, Trash2 } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/utils/formatPrice'
 import { generateWhatsAppOrderMessage } from '@/utils/whatsappMessage'
+import { CartDiscountProgressBar } from '@/components/store/CartDiscountProgressBar'
 
 export function CartDrawer({ open, onClose, onRequestOrder }) {
   const { items, totalItems, totalPrice, removeItem, clearCart, cartDiscount } = useCart()
@@ -116,7 +117,22 @@ export function CartDrawer({ open, onClose, onRequestOrder }) {
                         {item.variantLabel}
                       </p>
                     )}
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-1.5 mt-1">
+                      {item.comparePrice && item.comparePrice > item.unitPrice && (
+                        <span className="text-xs line-through" style={{ color: 'var(--color-text-muted)' }}>
+                          {formatPrice(item.comparePrice)}
+                        </span>
+                      )}
+                      {item.discountPercentage > 0 && (
+                        <span
+                          className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                          style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
+                        >
+                          {item.discountPercentage}% OFF
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
                       <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
                         {item.quantity}x {formatPrice(item.unitPrice)}
                       </span>
@@ -144,6 +160,10 @@ export function CartDrawer({ open, onClose, onRequestOrder }) {
             className="px-5 py-4 shrink-0"
             style={{ borderTop: '1px solid var(--color-border)' }}
           >
+            <div className="mb-3">
+              <CartDiscountProgressBar cartDiscount={cartDiscount} />
+            </div>
+
             {cartDiscount?.enabled && cartDiscount.eligible && (
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm" style={{ color: 'var(--color-secondary)' }}>
@@ -153,11 +173,6 @@ export function CartDrawer({ open, onClose, onRequestOrder }) {
                   -${cartDiscount.discountAmount.toLocaleString('es-AR')}
                 </span>
               </div>
-            )}
-            {cartDiscount?.enabled && !cartDiscount.eligible && (
-              <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                Te faltan ${cartDiscount.progress.remaining.toLocaleString('es-AR')} para {cartDiscount.percentage}% OFF
-              </p>
             )}
 
             <div className="flex items-center justify-between mb-4">

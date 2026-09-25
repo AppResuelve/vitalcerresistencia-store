@@ -7,6 +7,7 @@ import { content, siteData } from "@/data/siteData";
 import { useCart } from "@/context/CartContext";
 import { useOrder } from "@/context/OrderContext";
 import { CartItem } from "@/components/store/CartItem";
+import { CartDiscountProgressBar } from "@/components/store/CartDiscountProgressBar";
 import { ordersService } from "@/services/storeService";
 import { generateWhatsAppOrderMessage } from "@/utils/whatsappMessage";
 
@@ -255,6 +256,10 @@ export default function Cart() {
                     </span>
                   </div>
 
+                  <div className="mb-4">
+                    <CartDiscountProgressBar cartDiscount={cartDiscount} />
+                  </div>
+
                   {cartDiscount?.enabled && cartDiscount.eligible && (
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm text-[var(--color-secondary)]">
@@ -264,11 +269,6 @@ export default function Cart() {
                         -${cartDiscount.discountAmount.toLocaleString("es-AR")}
                       </span>
                     </div>
-                  )}
-                  {cartDiscount?.enabled && !cartDiscount.eligible && (
-                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
-                      Te faltan ${cartDiscount.progress.remaining.toLocaleString("es-AR")} para {cartDiscount.percentage}% OFF
-                    </p>
                   )}
 
                   <ThinLine className="my-4" />

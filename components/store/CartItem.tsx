@@ -67,23 +67,40 @@ export function CartItem({ item }) {
           </button>
         </div>
 
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">
-          {formatPrice(item.unitPrice)} c/u
-          {usesWholesale && (
-            <span className="ml-2 text-[var(--color-primary)] font-medium">(mayorista)</span>
+        <div className="flex items-center gap-2 mt-1">
+          {item.comparePrice && item.comparePrice > item.unitPrice && (
+            <span className="text-xs line-through text-[var(--color-text-muted)]">
+              {formatPrice(item.comparePrice)}
+            </span>
           )}
-        </p>
+          {item.discountPercentage > 0 && (
+            <span
+              className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+              style={{ backgroundColor: "var(--color-primary)", color: "#ffffff" }}
+            >
+              {item.discountPercentage}% OFF
+            </span>
+          )}
+          {usesWholesale && (
+            <span className="text-xs text-[var(--color-primary)] font-medium">(mayorista)</span>
+          )}
+        </div>
 
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+            {formatPrice(item.unitPrice)} c/u
+          </span>
+          <span className="text-lg font-bold text-[var(--color-primary)]">
+            {formatPrice(item.subtotal)}
+          </span>
+        </div>
+
+        <div className="mt-3">
           <QuantitySelector
             quantity={item.quantity}
             onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
             onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
           />
-
-          <span className="text-lg font-bold text-[var(--color-primary)]">
-            {formatPrice(item.subtotal)}
-          </span>
         </div>
       </div>
     </div>
