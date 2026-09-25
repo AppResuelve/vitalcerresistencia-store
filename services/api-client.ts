@@ -9,7 +9,7 @@ function getTenantSlug(): string {
 const api = axios.create({
   baseURL: isServer
     ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-    : '/api',
+    : '',
   // La store es pública; no necesita cookies de sesión del admin.
   withCredentials: false,
 })
