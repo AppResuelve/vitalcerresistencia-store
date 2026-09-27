@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/utils/formatPrice";
-import { optimizeImageUrl } from "@/utils/imageUrl";
+import { optimizeImageUrl } from "@/utils/imageOptimization";
 
 export function ProductCard({ product }) {
   const { addItem, getItemQuantity } = useCart();
@@ -183,7 +183,10 @@ export function ProductCard({ product }) {
                   ? "var(--color-primary-light)"
                   : "var(--color-primary)",
               color: quantity > 0 ? "var(--color-primary)" : "#ffffff",
-              border: quantity > 0 ? "1px solid var(--color-primary)" : "1px solid transparent",
+              border:
+                quantity > 0
+                  ? "1px solid var(--color-primary)"
+                  : "1px solid transparent",
             }}
             onMouseEnter={(e) => {
               if (quantity === 0)

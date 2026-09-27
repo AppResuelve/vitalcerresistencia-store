@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
-import { optimizeImageUrl } from "@/utils/imageUrl";
+import { optimizeImageUrl } from "@/utils/imageOptimization";
+import { OptimizedImage } from "../ui/OptimizedImage";
 
 export function ProductGallery({ images, productName, discountPercentage }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,10 +41,12 @@ export function ProductGallery({ images, productName, discountPercentage }) {
   return (
     <div className="space-y-4">
       <div className="relative aspect-square rounded-lg overflow-hidden bg-[var(--color-surface)]">
-        <img
-          src={optimizeImageUrl(images[currentIndex], 800)}
+        <OptimizedImage
+          src={images[currentIndex]}
           alt={`${productName} - Imagen ${currentIndex + 1}`}
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
 
         {discountPercentage && (
@@ -81,16 +84,18 @@ export function ProductGallery({ images, productName, discountPercentage }) {
                 e.preventDefault();
                 setCurrentIndex(index);
               }}
-              className={`shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
+              className={`relative shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
                 index === currentIndex
                   ? "border-[var(--color-primary)]"
                   : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
-              <img
-                src={optimizeImageUrl(image, 150)}
+              <OptimizedImage
+                src={image}
                 alt={`${productName} - Miniatura ${index + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="80px"
               />
             </button>
           ))}
