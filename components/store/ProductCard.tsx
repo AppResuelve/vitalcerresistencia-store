@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/utils/formatPrice";
-import { optimizeImageUrl } from "@/utils/imageOptimization";
+import { OptimizedImage } from "../ui/OptimizedImage";
 
 export function ProductCard({ product }) {
   const { addItem, getItemQuantity } = useCart();
@@ -51,13 +51,15 @@ export function ProductCard({ product }) {
       <div className="relative">
         <Link href={`/productos/${product.slug}`} className="block">
           <div
-            className="aspect-square overflow-hidden"
+            className="relative aspect-square overflow-hidden"
             style={{ borderRadius: "1rem 1rem 0 0" }}
           >
-            <img
-              src={optimizeImageUrl(product.images[0])}
+            <OptimizedImage
+              src={product.images[0]}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
 

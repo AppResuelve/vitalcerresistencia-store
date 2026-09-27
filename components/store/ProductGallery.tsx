@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
-import { optimizeImageUrl } from "@/utils/imageOptimization";
 import { OptimizedImage } from "../ui/OptimizedImage";
 
 export function ProductGallery({ images, productName, discountPercentage }) {

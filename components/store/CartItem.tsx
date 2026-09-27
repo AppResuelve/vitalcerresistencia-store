@@ -4,7 +4,7 @@ import Link from "next/link";
 import { QuantitySelector } from "./QuantitySelector";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/utils/formatPrice";
-import { optimizeImageUrl } from "@/utils/imageOptimization";
+import { OptimizedImage } from "../ui/OptimizedImage";
 
 export function CartItem({ item }) {
   const { updateQuantity, removeItem } = useCart();
@@ -71,11 +71,16 @@ export function CartItem({ item }) {
 
   return (
     <div className="flex gap-4 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)]">
-      <Link href={`/productos/${item.slug}`} className="shrink-0">
-        <img
-          src={optimizeImageUrl(item.images[0])}
+      <Link
+        href={`/productos/${item.slug}`}
+        className="relative shrink-0 w-24 h-24 rounded-xl overflow-hidden"
+      >
+        <OptimizedImage
+          src={item.images[0]}
           alt={item.name}
-          className="w-24 h-24 object-cover rounded-xl"
+          fill
+          className="object-cover"
+          sizes="96px"
         />
       </Link>
 
